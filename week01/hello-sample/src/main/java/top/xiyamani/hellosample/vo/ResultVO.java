@@ -1,0 +1,42 @@
+package top.xiyamani.hellosample.vo;
+
+public class ResultVO<T> {
+    private int code;
+    private String msg;
+    private T data;
+
+    private ResultVO(int code, String msg, T data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
+
+    public static <T> ResultVO<T> success(T data) {
+        return new ResultVO<>(200, "success", data);
+    }
+
+    // Getters and Setters
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+}
