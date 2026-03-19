@@ -1,0 +1,29 @@
+server:
+  port: 8888
+  servlet:
+    #设置项目路径（上下文）
+    context-path: /api
+
+spring:
+  application:
+    name: springboot-week03 生产环境
+
+# 自定义配置
+app:
+  app-name: 企业后台管理系统
+  version: 2.0.0
+  description: Spring Boot 3.5.11 实战项目
+  envs: ["dev", "test", "prod"]
+  author:
+    name: xiyamani
+    website: https://xyang.top
+    email: 3070503627@qq.com
+    # 配置数值型和布尔，有具体含义
+    tokens: 2000
+    enabled:
+
+
+
+
+
+
