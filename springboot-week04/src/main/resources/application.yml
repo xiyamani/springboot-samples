@@ -1,0 +1,14 @@
+team:
+  leader: "张三"
+  age: 32
+  email: njuit@qq.com
+  phone: 13900001111
+  createTime: "2019-01-01"
+
+  spring:
+    application:
+      name:springboot-week04
+    servlet:
+      multipart:
+        max-file-size: 10MB #默认1MB
+        max-request-size: 100MB #默认10MB

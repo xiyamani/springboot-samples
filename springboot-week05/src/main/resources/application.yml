@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/springboot3_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root # 替换为自己的用户名
+    password: 112810 # 替换为自己的密码
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#mybatis:
+#  configuration:
+#    map-underscore-to-camel-case: true  # 下划线→驼峰自动映射
+
+    # application.yml
+    springdoc:
+      api-docs:
+        enabled: true
+        path: /v3/api-docs
+      swagger-ui:
+        enabled: true
+        path: /swagger-ui.html
+      packages-to-scan: top.xiyamani.controller
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

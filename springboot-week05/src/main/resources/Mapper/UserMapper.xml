@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace=接⼝全类名 -->
+<mapper namespace="top.xiyamani.springbootweek05.mapper.UserMapper">
+    <!-- id=接⼝⽅法名，resultType=返回实体类 -->
+    <select id="selectByCondition" resultType="top.xiyamani.entity.User">
+        SELECT * FROM t_user
+        <where>
+            <!-- 条件1：⽤户名不为空时，模糊查询 -->
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <!-- 条件2：年龄不为空时，⼤于等于该年龄 -->
+            <if test="minAge != null">
+                AND age >= #{minAge}
+            </if>
+        </where>
+    </select>
+</mapper>
