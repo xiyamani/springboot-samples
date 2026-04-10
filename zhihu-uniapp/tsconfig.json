@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "Node",
+        "strict": false,
+        "jsx": "preserve",
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "ignoreDeprecations": "6.0",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
+        "typeRoots": [
+            "./node_modules/@types",
+            "./src"
+        ] // 新增：指定类型文件目录
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.d.ts",
+        "src/**/*.tsx",
+        "src/**/*.vue",
+        "src/end.v.ts" // 强制包含这个文件
+    ],
+    "exclude": [
+        "node_modules",
+        "vite.config.mts"
+    ]
+}

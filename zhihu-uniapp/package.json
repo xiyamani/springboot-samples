@@ -1,0 +1,19 @@
+{
+  "name": "zhihu-uniapp",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:mp-weixin": "vite build --mode development --watch",
+    "build:mp-weixin": "vite build --mode production"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "3.0.0-beta.10",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.8"
+  },
+  "private": true
+}

@@ -1,0 +1,43 @@
+{
+    "pages": [
+        {
+            "path": "pages/special/list",
+            "style": {
+                "navigationBarTitleText": "知乎专题",
+                "enablePullDownRefresh": true
+            }
+        },
+        {
+            "path": "pages/special/detail",
+            "style": {
+                "navigationBarTitleText": "专题详情"
+            }
+        }
+    ],
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "知乎专题",
+        "navigationBarBackgroundColor": "#fff",
+        "backgroundColor": "#f5f5f5"
+    },
+    "tabBar": {
+        "color": "#666",
+        "selectedColor": "#007aff",
+        "borderStyle": "black",
+        "backgroundColor": "#fff",
+        "list": [
+            {
+                "pagePath": "pages/special/list",
+                "text": "专题列表",
+                "iconPath": "static/icon/list.png",
+                "selectedIconPath": "static/icon/list-active.png"
+            }
+        ]
+    },
+    "easycom": {
+        "autoscan": true,
+        "custom": {
+            "^special-(.*)": "@/components/special-$1/special-$1.vue"
+        }
+    }
+}

@@ -1,0 +1,19 @@
+server:
+  port: 8080
+  address: 0.0.0.0
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/springboot_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+    username: root
+    password: 112810
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jackson: # ?????
+    date-format: yyyy-MM-dd HH:mm:ss # ????
+    time-zone: GMT+8 # ??
+# mp ??
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml # ??mapper????
+  type-aliases-package: top.mqxu.zhihu.api.entity # ??entity
+  configuration:
+    map-underscaore-to-camel-case: true  # ??????
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl # ??sql
