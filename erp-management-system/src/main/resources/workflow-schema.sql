@@ -1,0 +1,76 @@
+CREATE TABLE IF NOT EXISTS order_workflows (
+  order_id BIGINT PRIMARY KEY REFERENCES business_orders(id),
+  state VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
+  submitted_by VARCHAR(60) NOT NULL DEFAULT '',
+  reviewed_by VARCHAR(60) NOT NULL DEFAULT '',
+  review_note VARCHAR(500) NOT NULL DEFAULT '',
+  submitted_at TIMESTAMP NULL,
+  reviewed_at TIMESTAMP NULL
+);
+CREATE TABLE IF NOT EXISTS integration_jobs (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  order_id BIGINT NOT NULL,
+  target VARCHAR(20) NOT NULL,
+  operation VARCHAR(40) NOT NULL,
+  payload TEXT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+  attempts INT NOT NULL DEFAULT 0,
+  response_text TEXT,
+  last_error VARCHAR(1000) NOT NULL DEFAULT '',
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(order_id,target,operation)
+);
+CREATE TABLE IF NOT EXISTS integration_attempts (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  job_id BIGINT NOT NULL REFERENCES integration_jobs(id),
+  success BOOLEAN NOT NULL,
+  response_text TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_name VARCHAR(60) NOT NULL,
+  action VARCHAR(80) NOT NULL,
+  object_ref VARCHAR(100) NOT NULL,
+  detail VARCHAR(1000) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS integration_exchanges (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  target VARCHAR(20) NOT NULL,
+  operation VARCHAR(40) NOT NULL,
+  request_text TEXT NOT NULL,
+  response_text TEXT NOT NULL,
+  success BOOLEAN NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS platform_receipts (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  request_key VARCHAR(100) NOT NULL UNIQUE,
+  target VARCHAR(20) NOT NULL,
+  receipt_no VARCHAR(80) NOT NULL,
+  payload TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS manufacturing_orders (
+  order_no VARCHAR(40) PRIMARY KEY,
+  product_sku VARCHAR(40) NOT NULL,
+  product_name VARCHAR(120) NOT NULL,
+  planned_qty DECIMAL(18,3) NOT NULL,
+  completed_qty DECIMAL(18,3) NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'RELEASED'
+);
+CREATE TABLE IF NOT EXISTS manufacturing_reports (
+  request_key VARCHAR(100) PRIMARY KEY,
+  order_no VARCHAR(40) NOT NULL REFERENCES manufacturing_orders(order_no),
+  quantity DECIMAL(18,3) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS sql_lab_orders (
+  id BIGINT PRIMARY KEY,
+  partner_id BIGINT NOT NULL,
+  business_date DATE NOT NULL,
+  amount DECIMAL(18,2) NOT NULL,
+  status VARCHAR(20) NOT NULL
+);

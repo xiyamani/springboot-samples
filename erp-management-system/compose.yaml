@@ -1,0 +1,10 @@
+services:
+  erp:
+    build: .
+    ports:
+      - "127.0.0.1:8087:8087"
+    volumes:
+      - erp-data:/app/data
+    restart: unless-stopped
+volumes:
+  erp-data:

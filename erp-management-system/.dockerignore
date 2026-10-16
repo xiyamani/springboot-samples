@@ -1,0 +1,7 @@
+data
+data-backups
+logs
+.git
+target/classes
+target/test-classes
+target/surefire-reports

@@ -1,0 +1,17 @@
+/target/
+/data/
+/data-backups/
+/logs/
+/runtime/
+/outputs/
+/.idea/
+/.vscode/
+*.iml
+*.zip
+*.7z
+*.log
+*.mv.db
+*.trace.db
+.env
+.env.*
+!.env.example

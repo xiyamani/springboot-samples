@@ -1,0 +1,490 @@
+{
+  "info": {
+    "name": "ERP课程接口验收",
+    "description": "同一应用的业务与本地测试平台接口。先顺序执行01-19；保留Postman Cookie。非金蝶官方API。重复运行会新增采购记录。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8087",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "platformToken",
+      "value": "training-local-token",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "jobId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "productId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "partnerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "today",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workOrderNo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reportId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 获取登录令牌",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"session 200\",()=>pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"csrfToken\",pm.response.json().csrfToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 管理员登录",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "username",
+              "value": "admin"
+            },
+            {
+              "key": "password",
+              "value": "admin123"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"login 200\",()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 刷新登录后的令牌",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/session"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set(\"csrfToken\",pm.response.json().csrfToken);",
+              "pm.test(\"admin session\",()=>pm.expect(pm.response.json().user.username).to.eql(\"admin\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 读取账套与业务资料",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/workspace"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const d=pm.response.json();",
+              "pm.collectionVariables.set(\"productId\",d.products[0].id);",
+              "pm.collectionVariables.set(\"partnerId\",d.partners.find(p=>p.type===\"SUPPLIER\").id);",
+              "pm.collectionVariables.set(\"today\",d.today);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 创建采购草稿",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"type\": \"PURCHASE\",\n  \"partnerId\": \"{{partnerId}}\",\n  \"businessDate\": \"{{today}}\",\n  \"note\": \"Postman 采购验收\",\n  \"lines\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 1,\n      \"unitPrice\": 10\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"create 200\",()=>pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"orderId\",pm.response.json().id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 提交审批",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders/{{orderId}}/submit"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"operation 200\",()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 审批通过",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders/{{orderId}}/approve",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"note\": \"已核对\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"operation 200\",()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 确认入库",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders/{{orderId}}/post"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"operation 200\",()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 查询单据与流程",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders/{{orderId}}"
+      }
+    },
+    {
+      "name": "10 拉取物料",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations/materials/pull"
+      }
+    },
+    {
+      "name": "11 发送待处理任务",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations/dispatch"
+      }
+    },
+    {
+      "name": "12 查询任务与状态",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const job=pm.response.json().jobs.find(j=>String(j.order_id)===pm.collectionVariables.get(\"orderId\"));",
+              "if(job)pm.collectionVariables.set(\"jobId\",job.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 查询任务报文",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations/jobs/{{jobId}}"
+      }
+    },
+    {
+      "name": "14 查询生产工单",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations/mom/work-orders"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const job=pm.response.json().find(j=>Number(j.completed_qty)<Number(j.planned_qty));",
+              "if(job)pm.collectionVariables.set(\"workOrderNo\",job.order_no);",
+              "pm.collectionVariables.set(\"reportId\",pm.variables.replaceIn(\"{{$guid}}\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 生产报工",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations/mom/report",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderNo\": \"{{workOrderNo}}\",\n  \"quantity\": 1,\n  \"requestId\": \"{{reportId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "16 重复报工验证幂等",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/integrations/mom/report",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderNo\": \"{{workOrderNo}}\",\n  \"quantity\": 1,\n  \"requestId\": \"{{reportId}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"duplicate\",()=>pm.expect(pm.response.json().records[0].duplicate).to.eql(\"true\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 平台令牌健康检查",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Training-Token",
+            "value": "{{platformToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/training-api/health"
+      }
+    },
+    {
+      "name": "18 退出",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/logout"
+      }
+    }
+  ]
+}
